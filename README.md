@@ -1,4 +1,4 @@
-# szhmmmm
+# Vue-mall
 
 ## Project setup
 ```
