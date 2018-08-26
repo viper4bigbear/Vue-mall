@@ -85,48 +85,32 @@
                     </div>
                     <div class="conn-box">
                       <div class="editor">
-                        <textarea id="txtContent" name="txtContent" sucmsg=" " datatype="*10-1000" nullmsg="请填写评论内容！"></textarea>
+                        <textarea v-model.trim="commentContent" id="txtContent" name="txtContent" sucmsg=" " datatype="*10-1000" nullmsg="请填写评论内容！"></textarea>
                         <span class="Validform_checktip"></span>
                       </div>
                       <div class="subcon">
-                        <input id="btnSubmit" name="submit" type="submit" value="提交评论" class="submit">
+                        <input id="btnSubmit" @click="submitComment" name="submit" type="submit" value="提交评论" class="submit">
                         <span class="Validform_checktip"></span>
                       </div>
                     </div>
                   </div>
                   <ul id="commentList" class="list-box">
-                    <p style="margin: 5px 0px 15px 69px; line-height: 42px; text-align: center; border: 1px solid rgb(247, 247, 247);">暂无评论，快来抢沙发吧！</p>
-                    <li>
+                    <p v-show="comments.length==0" style="margin: 5px 0px 15px 69px; line-height: 42px; text-align: center; border: 1px solid rgb(247, 247, 247);">暂无评论，快来抢沙发吧！</p>
+                    <li class="clearfix" v-for="item in comments" :key="item.id">
                       <div class="avatar-box">
                         <i class="iconfont icon-user-full"></i>
                       </div>
                       <div class="inner-box">
                         <div class="info">
-                          <span>匿名用户</span>
-                          <span>2017/10/23 14:58:59</span>
+                          <span>{{item.user_name}}</span>
+                          <span>{{item.reply_time | filterDate}}</span>
                         </div>
-                        <p>testtesttest</p>
-                      </div>
-                    </li>
-                    <li>
-                      <div class="avatar-box">
-                        <i class="iconfont icon-user-full"></i>
-                      </div>
-                      <div class="inner-box">
-                        <div class="info">
-                          <span>匿名用户</span>
-                          <span>2017/10/23 14:59:36</span>
-                        </div>
-                        <p>很清晰调动单很清晰调动单</p>
+                        <p>{{item.content}}</p>
                       </div>
                     </li>
                   </ul>
                   <div class="page-box" style="margin: 5px 0px 0px 62px;">
-                    <div id="pagination" class="digg">
-                      <span class="disabled">« 上一页</span>
-                      <span class="current">1</span>
-                      <span class="disabled">下一页 »</span>
-                    </div>
+                    <Page :total="commentcount" @on-change="pageChange" @on-page-size-change="sizeChange" show-sizer show-elevator :page-size-opts='[5,6,10,12]'/>
                   </div>
                 </div>
               </div>
@@ -186,19 +170,41 @@ export default {
         move_by_click: true,
         scroll_items: 4,
         choosed_thumb_border_color: "#ff3d00"
-      }
+      },
+      commentspage: 1,
+      commentssize: 10,
+      commentcount: 0,
+      comments: [],
+      commentContent: ""
     };
   },
   created() {
     this.getGoodsinfo();
+    this.getComments();
   },
   watch: {
     $route() {
-      this.images.normal_size = []
+      this.images.normal_size = [];
       this.getGoodsinfo();
+      this.getComments();
     }
   },
   methods: {
+    submitComment() {
+      if (this.commentContent == "") {
+        this.$Message.error("哥们,写点东西呗");
+      }
+    },
+    pageChange(page) {
+      this.commentspage = page;
+      this.getComments();
+    },
+    sizeChange(size) {
+      this.commentssize = size;
+      if (this.commentspage == 1) {
+        this.getComments();
+      }
+    },
     buyCountChange(value) {
       // eslint-disable-next-line
       console.log(value);
@@ -223,6 +229,18 @@ export default {
           });
 
           this.images.normal_size = temArr;
+        });
+    },
+    getComments() {
+      axios
+        .get(
+          `http://47.106.148.205:8899/site/comment/getbypage/goods/${
+            this.goodsid
+          }?pageIndex=${this.commentspage}&pageSize=${this.commentssize}`
+        )
+        .then(res => {
+          this.comments = res.data.message;
+          this.commentcount = res.data.totalcount;
         });
     }
   }
