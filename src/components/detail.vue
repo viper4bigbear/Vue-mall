@@ -13,7 +13,9 @@
         <div class="wrap-box">
           <div class="left-925">
             <div class="goods-box clearfix">
-              <div class="pic-box"></div>
+              <div class="pic-box">
+                <ProductZoomer v-if="images.normal_size.length>0" :base-images="images" :base-zoomer-options="zoomerOptions" />
+              </div>
               <div class="goods-spec">
                 <h1>{{goodsinfo.title}}</h1>
                 <p class="subtitle">{{goodsinfo.sub_title}}</p>
@@ -40,21 +42,7 @@
                     <dt>购买数量</dt>
                     <dd>
                       <div class="stock-box">
-                        <div class="el-input-number el-input-number--small">
-                          <span role="button" class="el-input-number__decrease is-disabled">
-                            <i class="el-icon-minus"></i>
-                          </span>
-                          <span role="button" class="el-input-number__increase">
-                            <i class="el-icon-plus"></i>
-                          </span>
-                          <div class="el-input el-input--small">
-                            <!---->
-                            <input autocomplete="off" size="small" type="text" rows="2" max="60" min="1" validateevent="true" class="el-input__inner" role="spinbutton" aria-valuemax="60" aria-valuemin="1" aria-valuenow="1" aria-disabled="false">
-                            <!---->
-                            <!---->
-                            <!---->
-                          </div>
-                        </div>
+                        <el-input-number v-model="buyCount" @change="buyCountChange" :min="0" :max="goodsinfo.stock_quantity" label="描述文字"></el-input-number>
                       </div>
                       <span class="stock-txt">
                         库存
@@ -74,20 +62,22 @@
               </div>
             </div>
             <div id="goodsTabs" class="goods-tab bg-wrap">
-              <div id="tabHead" class="tab-head" style="position: static; top: 517px; width: 925px;">
-                <ul>
-                  <li>
-                    <a href="javascript:;" class="selected">商品介绍</a>
-                  </li>
-                  <li>
-                    <a href="javascript:;">商品评论</a>
-                  </li>
-                </ul>
+              <Affix>
+                <div id="tabHead" class="tab-head" style="position: static; top: 517px; width: 925px;">
+                  <ul>
+                    <li>
+                      <a href="javascript:;" @click="showDiscuss=false" :class="{selected:!showDiscuss}">商品介绍</a>
+                    </li>
+                    <li>
+                      <a href="javascript:;" @click="showDiscuss=true" :class="{selected:showDiscuss}">商品评论</a>
+                    </li>
+                  </ul>
+                </div>
+              </Affix>
+
+              <div class="tab-content entry" v-html="goodsinfo.content" v-show="!showDiscuss" style="display: block;">
               </div>
-              <div class="tab-content entry" style="display: block;">
-                内容
-              </div>
-              <div class="tab-content" style="display: block;">
+              <div class="tab-content" v-show="showDiscuss" style="display: block;">
                 <div class="comment-box">
                   <div id="commentForm" name="commentForm" class="form-box">
                     <div class="avatar-box">
@@ -149,12 +139,12 @@
                 <ul class="side-img-list">
                   <li v-for="item in hotgoodslist" :key="item.id">
                     <div class="img-box">
-                      <a href="#/site/goodsinfo/90" class="">
-                        <img :src="item.img_url">
-                      </a>
+                      <router-link :to="'/detail/'+item.id"> <img :src="item.img_url"></router-link>
                     </div>
                     <div class="txt-box">
-                      <a href="#/site/goodsinfo/90" class="">{{item.title}}</a>
+                      <router-link :to="'/detail/'+item.id">
+                        {{item.title}}
+                      </router-link>
                       <span>{{item.add_time | filterDate}}</span>
                     </div>
                   </li>
@@ -165,6 +155,10 @@
         </div>
       </div>
     </div>
+    <!-- 返回顶部 -->
+    <BackTop :height="100" :bottom="100">
+      <div class="top">返回顶端</div>
+    </BackTop>
   </div>
 </template>
 
@@ -174,21 +168,90 @@ export default {
   name: "detail",
   data: function() {
     return {
+      showDiscuss: undefined,
       goodsid: undefined,
       hotgoodslist: undefined,
-      goodsinfo:undefined,
-      imglist:undefined
+      goodsinfo: {},
+      imglist: undefined,
+      buyCount: 1,
+      images: {
+        // required
+        normal_size: []
+      },
+      zoomerOptions: {
+        zoomFactor: 3,
+        pane: "container-round",
+        hoverDelay: 150,
+        namespace: "container-zoomer",
+        move_by_click: true,
+        scroll_items: 4,
+        choosed_thumb_border_color: "#ff3d00"
+      }
     };
   },
   created() {
-    this.goodsid = this.$route.params.goodsid;
-    axios
-      .get(`http://47.106.148.205:8899/site/goods/getgoodsinfo/${this.goodsid}`)
-      .then(res => {
-        this.hotgoodslist = res.data.message.hotgoodslist;
-        this.goodsinfo = res.data.message.goodsinfo;
-        this.imglist = res.data.message.imglist;
-      });
+    this.getGoodsinfo();
+  },
+  watch: {
+    $route() {
+      this.images.normal_size = []
+      this.getGoodsinfo();
+    }
+  },
+  methods: {
+    buyCountChange(value) {
+      // eslint-disable-next-line
+      console.log(value);
+    },
+    getGoodsinfo() {
+      this.goodsid = this.$route.params.goodsid;
+      axios
+        .get(
+          `http://47.106.148.205:8899/site/goods/getgoodsinfo/${this.goodsid}`
+        )
+        .then(res => {
+          this.hotgoodslist = res.data.message.hotgoodslist;
+          this.goodsinfo = res.data.message.goodsinfo;
+          this.imglist = res.data.message.imglist;
+
+          let temArr = [];
+          this.imglist.forEach(v => {
+            temArr.push({
+              id: v.id,
+              url: v.original_path
+            });
+          });
+
+          this.images.normal_size = temArr;
+        });
+    }
   }
 };
 </script>
+
+<style lang="less">
+.top {
+  padding: 10px;
+  background: rgba(0, 153, 229, 0.7);
+  color: #fff;
+  text-align: center;
+  border-radius: 2px;
+}
+.tab-content.entry img {
+  width: 100%;
+  display: block;
+}
+.pic-box {
+  width: 395px;
+  .thumb-list {
+    img {
+      width: 80px;
+      height: 80px;
+    }
+  }
+  .control {
+    display: flex;
+    justify-content: center;
+  }
+}
+</style>
