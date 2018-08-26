@@ -110,7 +110,7 @@
                     </li>
                   </ul>
                   <div class="page-box" style="margin: 5px 0px 0px 62px;">
-                    <Page :total="commentcount" @on-change="pageChange" @on-page-size-change="sizeChange" show-sizer show-elevator :page-size-opts='[5,6,10,12]'/>
+                    <Page :current='commentspage' :total="commentcount" @on-change="pageChange" @on-page-size-change="sizeChange" show-sizer show-elevator :page-size-opts='[5,6,10,12]'/>
                   </div>
                 </div>
               </div>
@@ -147,7 +147,7 @@
 </template>
 
 <script>
-import axios from "axios";
+
 export default {
   name: "detail",
   data: function() {
@@ -186,6 +186,7 @@ export default {
     $route() {
       this.images.normal_size = [];
       this.getGoodsinfo();
+      this.commentspage = 1;
       this.getComments();
     }
   },
@@ -193,7 +194,17 @@ export default {
     submitComment() {
       if (this.commentContent == "") {
         this.$Message.error("哥们,写点东西呗");
+        return
       }
+      this.$axios.post(`site/validate/comment/post/goods/${this.goodsid}`,{
+        "commenttxt":this.commentContent
+      })
+      .then(res=>{
+        // console.log(res)
+        this.$Message.success(res.data.message)
+        this.getComments()
+        this.commentContent = ''
+      })
     },
     pageChange(page) {
       this.commentspage = page;
@@ -211,9 +222,9 @@ export default {
     },
     getGoodsinfo() {
       this.goodsid = this.$route.params.goodsid;
-      axios
+      this.$axios
         .get(
-          `http://47.106.148.205:8899/site/goods/getgoodsinfo/${this.goodsid}`
+          `site/goods/getgoodsinfo/${this.goodsid}`
         )
         .then(res => {
           this.hotgoodslist = res.data.message.hotgoodslist;
@@ -232,9 +243,9 @@ export default {
         });
     },
     getComments() {
-      axios
+      this.$axios
         .get(
-          `http://47.106.148.205:8899/site/comment/getbypage/goods/${
+          `site/comment/getbypage/goods/${
             this.goodsid
           }?pageIndex=${this.commentspage}&pageSize=${this.commentssize}`
         )
@@ -260,7 +271,7 @@ export default {
   display: block;
 }
 .pic-box {
-  width: 395px;
+  width: 390px;
   .thumb-list {
     img {
       width: 80px;

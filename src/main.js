@@ -5,7 +5,7 @@ import VueRouter from 'vue-router'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 
-import ProductZoomer from 'vue-product-zoomer' 
+import ProductZoomer from 'vue-product-zoomer'
 
 import iView from 'iview'
 import 'iview/dist/styles/iview.css'
@@ -16,6 +16,10 @@ import App from './App.vue'
 
 import Index from './components/index.vue'
 import Detail from './components/detail.vue'
+
+import axios from 'axios'
+axios.defaults.baseURL = 'http://47.106.148.205:8899/'
+Vue.prototype.$axios = axios
 
 Vue.use(VueRouter)
 Vue.use(ElementUI)

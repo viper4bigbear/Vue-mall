@@ -104,7 +104,7 @@
 </template>
 
 <script>
-import axios from "axios";
+
 export default {
   name: "index",
   data: function() {
@@ -116,15 +116,15 @@ export default {
     };
   },
   created() {
-    axios
-      .get("http://47.106.148.205:8899/site/goods/gettopdata/goods")
+    this.$axios
+      .get("site/goods/gettopdata/goods")
       .then(response => {
         this.catelist = response.data.message.catelist;
         this.sliderlist = response.data.message.sliderlist;
         this.toplist = response.data.message.toplist;
       });
-    axios
-      .get("http://47.106.148.205:8899/site/goods/getgoodsgroup")
+    this.$axios
+      .get("site/goods/getgoodsgroup")
       .then(res => {
         this.goodsgroup = res.data.message;
       });
