@@ -140,7 +140,7 @@
       </div>
     </div>
     <!-- 加入购物车动画图片 -->
-    <img v-if="images.normal_size.length>0" :src="images.normal_size[0].url" alt="" id="moveImg">
+    <img v-if="images.normal_size.length>0" style="display:none;" :src="images.normal_size[0].url" alt="" id="moveImg">
     <!-- 返回顶部 -->
     <BackTop :height="100" :bottom="100">
       <div class="top">返回顶端</div>
@@ -196,8 +196,12 @@ export default {
     cartAdd() {
       let cartPosition = $('.add').offset()
       let targetPosition = $('.icon-cart').offset()
-      $('#moveImg').show().css(cartPosition).stop(true,false).animate(targetPosition,1000,function () {
-        $(this).hide()
+      $('#moveImg').stop().show().addClass('rotate').css(cartPosition).animate(targetPosition,1000,function () {
+        $(this).hide().removeClass('rotate')
+      })
+      this.$store.commit('addCart',{
+        goodsId: this.goodsid,
+        goodsCount: this.buyCount
       })
     },
     submitComment() {
@@ -225,10 +229,10 @@ export default {
         this.getComments();
       }
     },
-    buyCountChange(value) {
-      // eslint-disable-next-line
-      console.log(value);
-    },
+    // buyCountChange(value) {
+    //   // eslint-disable-next-line
+    //   console.log(value);
+    // },
     getGoodsinfo() {
       this.goodsid = this.$route.params.goodsid;
       this.$axios
@@ -295,13 +299,13 @@ export default {
 #moveImg {
   position: absolute;
   width: 50px;
-  left: 0;
-  top: 0;
+  // left: 0;
+  // top: 0;
   // display: none;
-  transform: scale(1)
 }
 #moveImg.rotate {
-  transform: rotate(7200deg) scale(0);
-  transition: all 1s;
+  transition: transform 1s,opacity 0.5s;
+  opacity: 0.5;
+  transform: rotate(7200deg) scale(0.2);
 }
 </style>

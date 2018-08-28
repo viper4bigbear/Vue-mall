@@ -23,10 +23,7 @@
 							<strong>|</strong>
 						</span>
 						<a href="" class="">
-							<i class="iconfont icon-cart"></i>购物车(
-							<span id="shoppingCartCount">
-								<span>4</span>
-							</span>)</a>
+							<i class="iconfont icon-cart"></i>购物车(<span id="shoppingCartCount"><span>{{$store.getters.buyCount||0}}</span></span>)</a>
 					</div>
 				</div>
 			</div>

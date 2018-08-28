@@ -2,6 +2,8 @@ import Vue from 'vue'
 
 import VueRouter from 'vue-router'
 
+import Vuex from 'vuex'
+
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 
@@ -22,6 +24,7 @@ axios.defaults.baseURL = 'http://47.106.148.205:8899/'
 Vue.prototype.$axios = axios
 
 Vue.use(VueRouter)
+Vue.use(Vuex)
 Vue.use(ElementUI)
 Vue.use(iView)
 Vue.use(VueLazyload, {
@@ -45,11 +48,40 @@ const routes = [
   {path: '/detail/:goodsid', component: Detail}
 ]
 
+const store = new Vuex.Store({
+  state: {
+    // count: 998
+    // cartData: {goodsid:goodsCount}
+    cartData: {}
+  },
+  mutations: {
+    // increment (state) {
+    //   state.count++
+    // }
+    addCart (state, goodInfo) {
+      if (state.cartData[goodInfo.goodsId] === undefined) {
+        Vue.set(state.cartData, goodInfo.goodsId, goodInfo.goodsCount)
+      } else {
+        state.cartData[goodInfo.goodsId] += goodInfo.goodsCount
+      }
+    }
+  },
+  getters: {
+    buyCount: state => {
+      let num = 0
+      for (const key in state.cartData) {
+        num += state.cartData[key]
+      }
+      return num
+    }
+  }
+})
 const router = new VueRouter({
   routes
 })
 
 new Vue({
   render: h => h(App),
-  router
+  router,
+  store
 }).$mount('#app')
