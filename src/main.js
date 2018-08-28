@@ -18,6 +18,7 @@ import App from './App.vue'
 
 import Index from './components/index.vue'
 import Detail from './components/detail.vue'
+import Cart from './components/shoppingCart.vue'
 
 import axios from 'axios'
 axios.defaults.baseURL = 'http://47.106.148.205:8899/'
@@ -45,14 +46,15 @@ Vue.config.productionTip = false
 const routes = [
   {path: '/', redirect: '/index'},
   {path: '/index', component: Index},
-  {path: '/detail/:goodsid', component: Detail}
+  {path: '/detail/:goodsid', component: Detail},
+  {path: '/cart', component: Cart}
 ]
 
 const store = new Vuex.Store({
   state: {
     // count: 998
     // cartData: {goodsid:goodsCount}
-    cartData: {}
+    cartData: JSON.parse(window.localStorage.getItem('goodKey')) || {}
   },
   mutations: {
     // increment (state) {
@@ -64,6 +66,12 @@ const store = new Vuex.Store({
       } else {
         state.cartData[goodInfo.goodsId] += goodInfo.goodsCount
       }
+    },
+    changeCart (state, goodInfo) {
+      state.cartData[goodInfo.id] = goodInfo.goodsCount
+    },
+    deleteCart (state, goodInfo) {
+      Vue.delete(state.cartData, goodInfo)
     }
   },
   getters: {
@@ -76,6 +84,10 @@ const store = new Vuex.Store({
     }
   }
 })
+window.onbeforeunload = function () {
+  window.localStorage.setItem('goodKey', JSON.stringify(store.state.cartData))
+}
+
 const router = new VueRouter({
   routes
 })

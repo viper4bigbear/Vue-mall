@@ -194,6 +194,10 @@ export default {
   },
   methods: {
     cartAdd() {
+      if (this.buyCount ==0) {
+        this.$Message.error('哥们,买点东西呗,不买怎么加入购物车')
+        return
+      }
       let cartPosition = $('.add').offset()
       let targetPosition = $('.icon-cart').offset()
       $('#moveImg').stop().show().addClass('rotate').css(cartPosition).animate(targetPosition,1000,function () {
@@ -229,10 +233,10 @@ export default {
         this.getComments();
       }
     },
-    // buyCountChange(value) {
-    //   // eslint-disable-next-line
-    //   console.log(value);
-    // },
+    buyCountChange(value) {
+      // eslint-disable-next-line
+      console.log(value);
+    },
     getGoodsinfo() {
       this.goodsid = this.$route.params.goodsid;
       this.$axios
