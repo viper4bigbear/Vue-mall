@@ -42,7 +42,7 @@
                     <dt>购买数量</dt>
                     <dd>
                       <div class="stock-box">
-                        <el-input-number v-model="buyCount" @change="buyCountChange" :min="0" :max="goodsinfo.stock_quantity" label="描述文字"></el-input-number>
+                        <el-input-number v-model="buyCount" @change="buyCountChange" :min="0" :max="goodsinfo.stock_quantity" size="mini" label="描述文字"></el-input-number>
                       </div>
                       <span class="stock-txt">
                         库存
@@ -54,7 +54,7 @@
                     <dd>
                       <div id="buyButton" class="btn-buy">
                         <button onclick="cartAdd(this,'/',1,'/shopping.html');" class="buy">立即购买</button>
-                        <button onclick="cartAdd(this,'/',0,'/cart.html');" class="add">加入购物车</button>
+                        <button @click="cartAdd" class="add">加入购物车</button>
                       </div>
                     </dd>
                   </dl>
@@ -139,6 +139,8 @@
         </div>
       </div>
     </div>
+    <!-- 加入购物车动画图片 -->
+    <img v-if="images.normal_size.length>0" :src="images.normal_size[0].url" alt="" id="moveImg">
     <!-- 返回顶部 -->
     <BackTop :height="100" :bottom="100">
       <div class="top">返回顶端</div>
@@ -147,7 +149,7 @@
 </template>
 
 <script>
-
+import $ from 'jquery'
 export default {
   name: "detail",
   data: function() {
@@ -191,6 +193,13 @@ export default {
     }
   },
   methods: {
+    cartAdd() {
+      let cartPosition = $('.add').offset()
+      let targetPosition = $('.icon-cart').offset()
+      $('#moveImg').show().css(cartPosition).stop(true,false).animate(targetPosition,1000,function () {
+        $(this).hide()
+      })
+    },
     submitComment() {
       if (this.commentContent == "") {
         this.$Message.error("哥们,写点东西呗");
@@ -282,5 +291,17 @@ export default {
     display: flex;
     justify-content: center;
   }
+}
+#moveImg {
+  position: absolute;
+  width: 50px;
+  left: 0;
+  top: 0;
+  // display: none;
+  transform: scale(1)
+}
+#moveImg.rotate {
+  transform: rotate(7200deg) scale(0);
+  transition: all 1s;
 }
 </style>
