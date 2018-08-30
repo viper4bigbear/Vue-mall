@@ -110,7 +110,7 @@
                     </li>
                   </ul>
                   <div class="page-box" style="margin: 5px 0px 0px 62px;">
-                    <Page :current='commentspage' :total="commentcount" @on-change="pageChange" @on-page-size-change="sizeChange" show-sizer show-elevator :page-size-opts='[5,6,10,12]'/>
+                    <Page :current='commentspage' :total="commentcount" @on-change="pageChange" @on-page-size-change="sizeChange" show-sizer show-elevator :page-size-opts='[5,6,10,12]' />
                   </div>
                 </div>
               </div>
@@ -149,7 +149,7 @@
 </template>
 
 <script>
-import $ from 'jquery'
+import $ from "jquery";
 export default {
   name: "detail",
   data: function() {
@@ -190,38 +190,47 @@ export default {
       this.getGoodsinfo();
       this.commentspage = 1;
       this.getComments();
+      this.buyCount = 1;
     }
   },
   methods: {
     cartAdd() {
-      if (this.buyCount ==0) {
-        this.$Message.error('哥们,买点东西呗,不买怎么加入购物车')
-        return
+      if (this.buyCount == 0) {
+        this.$Message.error("哥们,买点东西呗,不买怎么加入购物车");
+        return;
       }
-      let cartPosition = $('.add').offset()
-      let targetPosition = $('.icon-cart').offset()
-      $('#moveImg').stop().show().addClass('rotate').css(cartPosition).animate(targetPosition,1000,function () {
-        $(this).hide().removeClass('rotate')
-      })
-      this.$store.commit('addCart',{
+      let cartPosition = $(".add").offset();
+      let targetPosition = $(".icon-cart").offset();
+      $("#moveImg")
+        .stop()
+        .show()
+        .addClass("rotate")
+        .css(cartPosition)
+        .animate(targetPosition, 1000, function() {
+          $(this)
+            .hide()
+            .removeClass("rotate");
+        });
+      this.$store.commit("addCart", {
         goodsId: this.goodsid,
         goodsCount: this.buyCount
-      })
+      });
     },
     submitComment() {
       if (this.commentContent == "") {
         this.$Message.error("哥们,写点东西呗");
-        return
+        return;
       }
-      this.$axios.post(`site/validate/comment/post/goods/${this.goodsid}`,{
-        "commenttxt":this.commentContent
-      })
-      .then(res=>{
-        // console.log(res)
-        this.$Message.success(res.data.message)
-        this.getComments()
-        this.commentContent = ''
-      })
+      this.$axios
+        .post(`site/validate/comment/post/goods/${this.goodsid}`, {
+          commenttxt: this.commentContent
+        })
+        .then(res => {
+          // console.log(res)
+          this.$Message.success(res.data.message);
+          this.getComments();
+          this.commentContent = "";
+        });
     },
     pageChange(page) {
       this.commentspage = page;
@@ -239,32 +248,28 @@ export default {
     },
     getGoodsinfo() {
       this.goodsid = this.$route.params.goodsid;
-      this.$axios
-        .get(
-          `site/goods/getgoodsinfo/${this.goodsid}`
-        )
-        .then(res => {
-          this.hotgoodslist = res.data.message.hotgoodslist;
-          this.goodsinfo = res.data.message.goodsinfo;
-          this.imglist = res.data.message.imglist;
+      this.$axios.get(`site/goods/getgoodsinfo/${this.goodsid}`).then(res => {
+        this.hotgoodslist = res.data.message.hotgoodslist;
+        this.goodsinfo = res.data.message.goodsinfo;
+        this.imglist = res.data.message.imglist;
 
-          let temArr = [];
-          this.imglist.forEach(v => {
-            temArr.push({
-              id: v.id,
-              url: v.original_path
-            });
+        let temArr = [];
+        this.imglist.forEach(v => {
+          temArr.push({
+            id: v.id,
+            url: v.original_path
           });
-
-          this.images.normal_size = temArr;
         });
+
+        this.images.normal_size = temArr;
+      });
     },
     getComments() {
       this.$axios
         .get(
-          `site/comment/getbypage/goods/${
-            this.goodsid
-          }?pageIndex=${this.commentspage}&pageSize=${this.commentssize}`
+          `site/comment/getbypage/goods/${this.goodsid}?pageIndex=${
+            this.commentspage
+          }&pageSize=${this.commentssize}`
         )
         .then(res => {
           this.comments = res.data.message;
@@ -308,7 +313,7 @@ export default {
   // display: none;
 }
 #moveImg.rotate {
-  transition: transform 1s,opacity 0.5s;
+  transition: transform 1s, opacity 0.5s;
   opacity: 0.5;
   transform: rotate(7200deg) scale(0.2);
 }

@@ -19,9 +19,11 @@ import App from './App.vue'
 import Index from './components/index.vue'
 import Detail from './components/detail.vue'
 import Cart from './components/shoppingCart.vue'
-
+import Login from './components/login.vue'
+import Order from './components/fillOrder.vue'
 import axios from 'axios'
 axios.defaults.baseURL = 'http://47.106.148.205:8899/'
+axios.defaults.withCredentials = true
 Vue.prototype.$axios = axios
 
 Vue.use(VueRouter)
@@ -47,14 +49,18 @@ const routes = [
   {path: '/', redirect: '/index'},
   {path: '/index', component: Index},
   {path: '/detail/:goodsid', component: Detail},
-  {path: '/cart', component: Cart}
+  {path: '/cart', component: Cart},
+  {path: '/login', component: Login},
+  {path: '/order/:ids', component: Order}
 ]
 
 const store = new Vuex.Store({
   state: {
     // count: 998
     // cartData: {goodsid:goodsCount}
-    cartData: JSON.parse(window.localStorage.getItem('goodKey')) || {}
+    cartData: JSON.parse(window.localStorage.getItem('goodKey')) || {},
+    isLogin: false,
+    fromData: ''
   },
   mutations: {
     // increment (state) {
@@ -70,8 +76,14 @@ const store = new Vuex.Store({
     changeCart (state, goodInfo) {
       state.cartData[goodInfo.id] = goodInfo.goodsCount
     },
-    deleteCart (state, goodInfo) {
-      Vue.delete(state.cartData, goodInfo)
+    deleteCart (state, goodId) {
+      Vue.delete(state.cartData, goodId)
+    },
+    changeLogin (state, status) {
+      state.isLogin = status
+    },
+    setFromData (state, path) {
+      state.fromData = path
     }
   },
   getters: {
@@ -91,9 +103,32 @@ window.onbeforeunload = function () {
 const router = new VueRouter({
   routes
 })
+router.beforeEach((to, from, next) => {
+  store.commit('setFromData', from.path)
+  if (to.path.indexOf('/order/') !== -1) {
+    axios.get('site/account/islogin')
+      .then(res => {
+        if (res.data.code === 'nologin') {
+          next('/login')
+        } else {
+          next()
+        }
+      })
+  } else {
+    next()
+  }
+})
 
 new Vue({
   render: h => h(App),
   router,
-  store
+  store,
+  beforeCreate () {
+    axios.get('site/account/islogin')
+      .then(res => {
+        if (res.data.code === 'logined') {
+          store.state.isLogin = true
+        }
+      })
+  }
 }).$mount('#app')

@@ -101,7 +101,7 @@
               <router-link to="/index">
                 <button class="button">继续购物</button>
               </router-link>
-              <button class="submit" onclick="formSubmit(this, '/', '/shopping.html');">立即结算</button>
+              <button class="submit" @click="checkAndSubmit">立即结算</button>
             </div>
           </div>
           <!--购物车底部-->
@@ -133,9 +133,43 @@ export default {
           this.cartInfo.splice(i, 1);
         }
       });
+    },
+    checkAndSubmit() {
+      if (this.cartCount == 0) {
+        this.$Message.error("哥们,选点东西呗,不选我怎么结算啊");
+        return;
+      }
+      let ids = "";
+      this.cartInfo.forEach(v => {
+        if (v.selected == true) {
+          ids += v.id;
+          ids += ",";
+        }
+      });
+      ids = ids.slice(0, -1);
+      this.$router.push("/order/" + ids);
+      // this.$axios.get('site/account/islogin')
+      // .then(res=>{
+      //   if(res.data.code=='nologin') {
+      //     this.$alert('哥们,你要先登录才能下单哦', '提示', {
+      //     confirmButtonText: '确定',
+      //     callback: () => {
+      //       this.$router.push('/login')
+      //     }
+      //   });
+      //   } else {
+      //     this.$router.push('/order')
+      //   }
+      // })
     }
   },
   created() {
+    this.$Loading.config({
+      color: "#5cb85c",
+      failedColor: "#f0ad4e",
+      height: 5
+    });
+    this.$Loading.start();
     let cartData = this.$store.state.cartData;
     let ids = "";
     for (const key in cartData) {
@@ -143,13 +177,19 @@ export default {
       ids += ",";
     }
     ids = ids.slice(0, -1);
-    this.$axios.get("site/comment/getshopcargoods/" + ids).then(res => {
-      res.data.message.forEach(v => {
-        v.buycount = cartData[v.id];
-        v.selected = true;
+    this.$axios
+      .get("site/comment/getshopcargoods/" + ids)
+      .then(res => {
+        this.$Loading.finish();
+        res.data.message.forEach(v => {
+          v.buycount = cartData[v.id];
+          v.selected = true;
+        });
+        this.cartInfo = res.data.message;
+      })
+      .catch(() => {
+        this.$Loading.error();
       });
-      this.cartInfo = res.data.message;
-    });
   },
   computed: {
     cartCount() {
