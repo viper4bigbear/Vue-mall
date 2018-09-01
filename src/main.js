@@ -21,6 +21,8 @@ import Detail from './components/detail.vue'
 import Cart from './components/shoppingCart.vue'
 import Login from './components/login.vue'
 import Order from './components/fillOrder.vue'
+import PayOrder from './components/payOrder.vue'
+
 import axios from 'axios'
 axios.defaults.baseURL = 'http://47.106.148.205:8899/'
 axios.defaults.withCredentials = true
@@ -39,19 +41,44 @@ Vue.use(VueLazyload, {
 Vue.use(ProductZoomer)
 
 Vue.filter(
-  'filterDate', function (val) {
+  'filterDate',
+  function (val) {
     return moment(val).format('YYYY年MM月DD日')
   }
 )
 Vue.config.productionTip = false
 
-const routes = [
-  {path: '/', redirect: '/index'},
-  {path: '/index', component: Index},
-  {path: '/detail/:goodsid', component: Detail},
-  {path: '/cart', component: Cart},
-  {path: '/login', component: Login},
-  {path: '/order/:ids', component: Order}
+const routes = [{
+  path: '/',
+  redirect: '/index'
+},
+{
+  path: '/index',
+  component: Index
+},
+{
+  path: '/detail/:goodsid',
+  component: Detail
+},
+{
+  path: '/cart',
+  component: Cart
+},
+{
+  path: '/login',
+  component: Login
+},
+{
+  path: '/order/:ids',
+  component: Order,
+  meta: {
+    checkLogin: true
+  }
+},
+{
+  path: '/payOrder/:orderid',
+  component: PayOrder
+}
 ]
 
 const store = new Vuex.Store({
@@ -105,7 +132,7 @@ const router = new VueRouter({
 })
 router.beforeEach((to, from, next) => {
   store.commit('setFromData', from.path)
-  if (to.path.indexOf('/order/') !== -1) {
+  if (to.meta.checkLogin === true) {
     axios.get('site/account/islogin')
       .then(res => {
         if (res.data.code === 'nologin') {
