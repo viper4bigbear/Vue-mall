@@ -17,7 +17,7 @@
 							<strong>|</strong>
 						</span>
 						<span v-show="$store.state.isLogin==true">
-							<a href="" class="">会员中心</a>
+							<router-link to="/vipCenter">会员中心</router-link>
 							<strong>|</strong>
 							<a @click="loginOut">退出</a>
 							<strong>|</strong>
@@ -186,7 +186,14 @@ $(function() {
 </script>
 
 <style>
-@import url("./assets/statics/site/css/style.css");
 @import url("./assets/lib/css/style.css");
+@import url("./assets/statics/site/css/style.css");
+
+.sub-tit {
+  height: auto
+}
+.avatar-box {
+  min-height: 72px
+}
 </style>
 

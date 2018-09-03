@@ -34,7 +34,7 @@
                   <div class="el-col el-col-12">
                     <dl class="form-group">
                       <dt>送货地址：</dt>
-                      <dd>{{orderData.area}}{{orderData.address}}
+                      <dd>{{orderData.area+orderData.address}}
                       </dd>
                     </dl>
                   </div>
@@ -70,8 +70,9 @@
               </div>
               <div class="el-col el-col-6">
                 <div id="container2">
-                  <canvas width="300" height="300"></canvas>
+                  <qrcode :value="'http://47.106.148.205:8899/site/validate/pay/alipay/'+$route.params.orderid" :options="{ size: 200 }"></qrcode>
                 </div>
+                <button @click="goPay">点我去支付</button>
               </div>
             </div>
           </div>
@@ -81,24 +82,42 @@
   </div>
 </template>
 <script>
+import VueQrcode from "@xkeshi/vue-qrcode";
 export default {
-  name:'payOrder',
-  data:function () {
+  name: "payOrder",
+  data: function() {
     return {
-      orderData:{}
+      orderData: {}
+    };
+  },
+  methods:{
+    goPay() {
+      window.open('http://47.106.148.205:8899/site/validate/pay/alipay/'+this.$route.params.orderid)
     }
   },
-  created() {
-    let orderid = this.$route.params.orderid
-    this.$axios.get(`site/validate/order/getorder/${orderid}`)
-    .then(res=>{
-      this.orderData = res.data.message[0]
-    })
+  components: {
+    [VueQrcode.name]: VueQrcode
   },
-}
+  created() {
+    let orderid = this.$route.params.orderid;
+    this.$axios.get(`site/validate/order/getorder/${orderid}`).then(res => {
+      this.orderData = res.data.message[0];
+    });
+    let innerId = setInterval(()=>{
+      this.$axios.get(`site/validate/order/getorder/${orderid}`).then(res => {
+      if (res.data.message[0].status == 2) {
+        this.$Message.success('支付成功,请耐心等待被查水表')
+        clearInterval(innerId)
+        setTimeout(()=>{
+          this.$router.push(`/paySuccess/${this.$route.params.orderid}`)
+        },1000)
+      }
+    });
+    },2000)
+  }
+};
 </script>
 <style>
-
 </style>
 
 

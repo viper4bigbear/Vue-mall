@@ -22,6 +22,10 @@ import Cart from './components/shoppingCart.vue'
 import Login from './components/login.vue'
 import Order from './components/fillOrder.vue'
 import PayOrder from './components/payOrder.vue'
+import PaySuccess from './components/paySuccess.vue'
+import VipCenter from './components/vipCenter.vue'
+import OrderList from './components/orderList.vue'
+import OrderDetail from './components/orderDetail.vue'
 
 import axios from 'axios'
 axios.defaults.baseURL = 'http://47.106.148.205:8899/'
@@ -42,8 +46,12 @@ Vue.use(ProductZoomer)
 
 Vue.filter(
   'filterDate',
-  function (val) {
-    return moment(val).format('YYYY年MM月DD日')
+  function (val, filter) {
+    if (filter !== undefined) {
+      return moment(val).format(filter)
+    } else {
+      return moment(val).format('YYYY年MM月DD日')
+    }
   }
 )
 Vue.config.productionTip = false
@@ -77,7 +85,38 @@ const routes = [{
 },
 {
   path: '/payOrder/:orderid',
-  component: PayOrder
+  component: PayOrder,
+  meta: {
+    checkLogin: true
+  }
+},
+{
+  path: '/paySuccess/:orderid',
+  component: PaySuccess,
+  meta: {
+    checkLogin: true
+  }
+},
+{
+  path: '/vipCenter',
+  component: VipCenter,
+  meta: {
+    checkLogin: true
+  }
+},
+{
+  path: '/orderList',
+  component: OrderList,
+  meta: {
+    checkLogin: true
+  }
+},
+{
+  path: '/orderDetail/:orderid',
+  component: OrderDetail,
+  meta: {
+    checkLogin: true
+  }
 }
 ]
 
