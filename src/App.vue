@@ -124,8 +124,8 @@
 				<p>退出之后,如果需要购物需要重新登录,请确认是否退出?</p>
 			</div>
 			<div slot="footer" style="display:flex;justify-content:center;">
-				<Button type="success" size="large" @click="confirm">确认</Button>
-				<Button type="error" size="large" @click="cancel">取消</Button>
+				<el-button type="success" size="large" @click="confirm">确认</el-button>
+				<el-button type="danger" size="large" @click="cancel">取消</el-button>
 			</div>
 		</Modal>
 	</div>
@@ -148,7 +148,8 @@ export default {
       this.$axios.get("site/account/logout").then(res => {
         if (res.data.status == 0) {
           this.$store.commit("changeLogin", false);
-          this.isShow = false;
+					this.isShow = false;
+					this.$Notice.success({title:'注销成功'})
           this.$router.push("/index");
         }
       });

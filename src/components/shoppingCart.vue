@@ -73,10 +73,10 @@
                     </el-switch>
                   </td>
                   <td><img width="60px" :src="item.img_url" alt=""></td>
-                  <td>{{item.title}}</td>
+                  <td><router-link :to="'/detail/'+item.id">{{item.title}}</router-link></td>
                   <td>{{item.sell_price}}</td>
                   <td>
-                    <el-input-number :precision="0" :min="0" @change="changCart($event,item.id)" size="mini" v-model="item.buycount"></el-input-number>
+                    <el-input-number :max="item.max" :precision="0" :min="0" @change="changCart($event,item.id)" size="mini" v-model="item.buycount"></el-input-number>
                   </td>
                   <td align="center">{{item.sell_price*item.buycount}}</td>
                   <td>
@@ -121,6 +121,13 @@ export default {
   },
   methods: {
     changCart(num, id) {
+      this.cartInfo.forEach(v=>{
+        if(v.id==id) {
+          if(num>v.max) {
+            num = v.max
+          }
+        }
+      })
       this.$store.commit("changeCart", {
         id: id,
         goodsCount: num
@@ -184,6 +191,9 @@ export default {
         res.data.message.forEach(v => {
           v.buycount = cartData[v.id];
           v.selected = true;
+          this.$axios.get(`site/goods/getgoodsinfo/${v.id}`).then(response=>{
+            v.max = response.data.message.goodsinfo.stock_quantity
+          })
         });
         this.cartInfo = res.data.message;
       })

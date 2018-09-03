@@ -87,7 +87,8 @@ export default {
   name: "payOrder",
   data: function() {
     return {
-      orderData: {}
+      orderData: {},
+      innerId:0
     };
   },
   methods:{
@@ -103,18 +104,21 @@ export default {
     this.$axios.get(`site/validate/order/getorder/${orderid}`).then(res => {
       this.orderData = res.data.message[0];
     });
-    let innerId = setInterval(()=>{
+    this.innerId = setInterval(()=>{
       this.$axios.get(`site/validate/order/getorder/${orderid}`).then(res => {
       if (res.data.message[0].status == 2) {
         this.$Message.success('支付成功,请耐心等待被查水表')
-        clearInterval(innerId)
+        clearInterval(this.innerId)
         setTimeout(()=>{
           this.$router.push(`/paySuccess/${this.$route.params.orderid}`)
         },1000)
       }
     });
     },2000)
-  }
+  },
+  destroyed() {
+    clearInterval(this.innerId)
+  },
 };
 </script>
 <style>

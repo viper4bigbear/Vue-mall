@@ -55,6 +55,7 @@ export default {
           this.loading = false;
           if (res.data.status == 0) {
             this.$store.commit("changeLogin", true);
+            this.$Notice.success({title:'登录成功'})
             this.$router.push(this.$store.state.fromData);
           } else {
             this.$Message.error("哎呀,账号或密码输错啦!");

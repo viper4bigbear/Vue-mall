@@ -27,7 +27,7 @@
                       <strong>订单已支付成功！</strong>
                       <span><span style="color:red;font-size=30px">{{time}}</span>秒后跳转到订单详情</span>
                       <p>您可以点击这里进入
-                        <a @click="goVip(timeId)">会员中心</a>查看订单状态！
+                        <router-link to="/vipCenter">会员中心</router-link> 查看订单状态！
                       <p>如有其它问题，请立即与我们客服人员联系。</p>
                     </div>
                   </div>
@@ -58,12 +58,9 @@ export default {
       }
     },1000)
   },
-  methods: {
-    goVip (id) {
-      clearInterval(id)
-      this.$router.push('/vipCenter')
-    }
-  }
+  destroyed() {
+    clearInterval(this.timeId)
+  },
 };
 </script>
 <style>
