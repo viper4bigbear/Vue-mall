@@ -93,7 +93,17 @@ router.beforeEach((to, from, next) => {
         if (res.data.code === 'nologin') {
           next('/login')
         } else {
-          next()
+          if (to.path.indexOf('/order') !== -1) {
+            let arr = to.params.ids.split(',')
+            arr.forEach(v => {
+              if (!store.state.cartData[v]) {
+                next('/index')
+              }
+            })
+            next()
+          } else {
+            next()
+          }
         }
       })
   } else {
