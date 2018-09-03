@@ -70,7 +70,7 @@
               </div>
               <div class="el-col el-col-6">
                 <div id="container2">
-                  <qrcode :value="'http://47.106.148.205:8899/site/validate/pay/alipay/'+$route.params.orderid" :options="{ size: 200 }"></qrcode>
+                  <qrcode :value="'http://111.230.232.110:8899/site/validate/pay/alipay/'+$route.params.orderid" :options="{ size: 200 }"></qrcode>
                 </div>
                 <button @click="goPay">点我去支付</button>
               </div>
@@ -93,7 +93,7 @@ export default {
   },
   methods:{
     goPay() {
-      window.open('http://47.106.148.205:8899/site/validate/pay/alipay/'+this.$route.params.orderid)
+      window.open('http://111.230.232.110:8899/site/validate/pay/alipay/'+this.$route.params.orderid)
     }
   },
   components: {

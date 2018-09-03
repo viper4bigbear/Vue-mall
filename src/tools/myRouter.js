@@ -13,7 +13,7 @@ import OrderList from '../components/orderList.vue'
 import OrderDetail from '../components/orderDetail.vue'
 
 import axios from 'axios'
-axios.defaults.baseURL = 'http://47.106.148.205:8899/'
+axios.defaults.baseURL = 'http://111.230.232.110:8899/'
 axios.defaults.withCredentials = true
 Vue.prototype.$axios = axios
 
